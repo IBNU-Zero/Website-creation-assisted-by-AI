@@ -1,1 +1,818 @@
+<!DOCTYPE html>
+<html lang="id" data-lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>0xLEARN — Belajar Keamanan Siber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050a07;
+    --bg-2:#081209;
+    --panel: rgba(0,255,102,0.045);
+    --panel-strong: rgba(0,255,102,0.09);
+    --border: rgba(0,255,102,0.22);
+    --green:#00ff6a;
+    --green-soft:#7fffb0;
+    --green-dim:#0d3d20;
+    --blue:#2fd6ff;
+    --red:#ff4d5e;
+    --text:#d9ffe4;
+    --text-dim:#7fa88f;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Inter', system-ui, sans-serif;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+  *,*::before,*::after{ box-sizing: inherit; }
+  html,body{ height:100%; }
+  html{ scroll-behavior:smooth; scroll-padding-top: calc(70px + var(--safe-t)); }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: var(--sans); line-height:1.65; font-size:16px;
+    padding-top: var(--safe-t); padding-bottom: var(--safe-b);
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--green); color:#00170a; }
+  a{ color: var(--blue); }
+  h1,h2,h3,h4{ font-family: var(--mono); font-weight:700; margin:0 0 .5em; color:#eafff2; letter-spacing:-0.01em; }
+  p{ margin:0 0 1em; max-width: 68ch; color: var(--text); }
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 20px; }
+  section{ padding:72px 0; position:relative; }
+  .kicker{ font-family:var(--mono); font-size:.8rem; color:var(--green-soft); display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .kicker::before{ content:''; width:8px; height:8px; background:var(--green); box-shadow:0 0 8px var(--green); flex:none; }
+  .section-title{ font-size: clamp(1.5rem, 3.4vw, 2.2rem); }
+  .section-intro{ color: var(--text-dim); }
 
+  /* ---------- Top nav ---------- */
+  header.nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding-top: var(--safe-t);
+    background: rgba(5,10,7,0.82); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{ max-width:1080px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .logo{ font-family:var(--mono); font-weight:800; font-size:1.05rem; color:#eafff2; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .logo .dot{ color:var(--green); }
+  nav.links{ display:flex; gap:22px; font-family:var(--mono); font-size:.85rem; }
+  nav.links a{ color:var(--text-dim); text-decoration:none; }
+  nav.links a:hover{ color:var(--green-soft); }
+  .nav-right{ display:flex; align-items:center; gap:10px; }
+  #langBtn{
+    font-family:var(--mono); font-size:.78rem; font-weight:700; letter-spacing:.04em;
+    background:transparent; border:1px solid var(--border); color:var(--green-soft);
+    padding:7px 12px; border-radius:6px; cursor:pointer; display:flex; gap:6px; align-items:center;
+  }
+  #langBtn:hover{ border-color:var(--green); background:var(--panel); }
+  #menuBtn{ display:none; background:none; border:1px solid var(--border); color:var(--green-soft); border-radius:6px; width:38px; height:38px; cursor:pointer; }
+  #menuBtn span, #menuBtn::before, #menuBtn::after{ content:''; display:block; width:16px; height:2px; background:var(--green-soft); margin:3px auto; }
+
+  /* ---------- Hero ---------- */
+  #hero{ padding-top: calc(90px + var(--safe-t)); min-height: 88vh; display:flex; align-items:center; }
+  #matrixCanvas{ position:absolute; inset:0; width:100%; height:100%; opacity:.5; }
+  #hero .wrap{ position:relative; z-index:2; }
+  .terminal{
+    max-width:720px; background:rgba(3,8,5,0.72); border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 0 0 1px rgba(0,255,106,.05), 0 30px 80px -30px rgba(0,255,106,.25);
+    padding:0; overflow:hidden;
+  }
+  .terminal-bar{ display:flex; gap:6px; padding:10px 14px; border-bottom:1px solid var(--border); background:rgba(0,255,106,.04); }
+  .terminal-bar i{ width:10px; height:10px; border-radius:50%; display:block; }
+  .terminal-bar i:nth-child(1){ background:var(--red); }
+  .terminal-bar i:nth-child(2){ background:#ffd23f; }
+  .terminal-bar i:nth-child(3){ background:var(--green); }
+  .terminal-body{ padding:22px 22px 26px; font-family:var(--mono); }
+  .terminal-body .h1line{ font-size: clamp(1.5rem, 4.4vw, 2.6rem); font-weight:800; color:#eafff2; line-height:1.15; margin:0 0 14px; }
+  .terminal-body .h1line .cursor{ display:inline-block; width:.5em; background:var(--green); animation: blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .terminal-body p{ font-family: var(--sans); color:var(--text-dim); font-size:1.02rem; }
+  .hero-badges{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .badge{ font-family:var(--mono); font-size:.72rem; border:1px solid var(--border); color:var(--green-soft); padding:5px 10px; border-radius:20px; }
+  .hero-cta{ margin-top:24px; display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{ font-family:var(--mono); font-weight:700; font-size:.85rem; padding:12px 18px; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; }
+  .btn-primary{ background:var(--green); color:#00170a; }
+  .btn-primary:hover{ background:var(--green-soft); }
+  .btn-ghost{ border-color:var(--border); color:var(--text); background:transparent; }
+  .btn-ghost:hover{ border-color:var(--blue); color:var(--blue); }
+
+  /* ---------- generic card ---------- */
+  .grid{ display:grid; gap:16px; }
+  .grid-3{ grid-template-columns:repeat(3,1fr); }
+  .grid-2{ grid-template-columns:repeat(2,1fr); }
+  @media(max-width:820px){ .grid-3{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:600px){ .grid-3, .grid-2{ grid-template-columns:1fr; } }
+
+  .hat-card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; }
+  .hat-card h3{ font-size:1rem; display:flex; align-items:center; gap:10px; }
+  .hat-swatch{ width:14px; height:14px; border-radius:3px; flex:none; }
+  .hat-white .hat-swatch{ background:#eafff2; }
+  .hat-grey .hat-swatch{ background:#9aa39c; }
+  .hat-black .hat-swatch{ background:var(--red); }
+
+  /* ---------- Attack cards ---------- */
+  .attack-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media(max-width:900px){ .attack-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:560px){ .attack-grid{ grid-template-columns:1fr; } }
+  .attack-card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; transition:border-color .15s; }
+  .attack-card[open]{ border-color: var(--green); }
+  .attack-card summary{ list-style:none; cursor:pointer; padding:18px; display:flex; gap:14px; align-items:center; }
+  .attack-card summary::-webkit-details-marker{ display:none; }
+  .attack-code{
+    font-family:var(--mono); font-weight:800; font-size:.85rem; color:var(--bg);
+    background:var(--green); width:42px; height:42px; border-radius:8px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .attack-card h4{ margin:0; font-size:1rem; color:#eafff2; }
+  .attack-card .chev{ margin-left:auto; color:var(--text-dim); font-family:var(--mono); transition:transform .15s; flex:none; }
+  .attack-card[open] .chev{ transform:rotate(90deg); color:var(--green); }
+  .attack-body{ padding:0 18px 20px; border-top:1px dashed var(--border); margin-top:0; }
+  .attack-body h5{ font-family:var(--mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--blue); margin:16px 0 6px; }
+  .attack-body ul{ margin:0; padding-left:18px; color:var(--text); }
+  .attack-body li{ margin-bottom:4px; }
+
+  /* ---------- Phishing game ---------- */
+  .game-box{ background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:6px; }
+  .msg-card{ background:var(--bg-2); border:1px solid var(--border); border-radius:8px; padding:18px; font-family:var(--mono); font-size:.88rem; }
+  .msg-meta{ color:var(--text-dim); margin-bottom:10px; }
+  .msg-meta b{ color:var(--text); }
+  .msg-body{ color:#eafff2; white-space:pre-wrap; }
+  .game-controls{ display:flex; gap:12px; padding:16px 18px 20px; flex-wrap:wrap; }
+  .game-controls .btn{ flex:1; min-width:140px; justify-content:center; }
+  .btn-safe{ border-color:var(--blue); color:var(--blue); background:transparent; }
+  .btn-safe:hover{ background:rgba(47,214,255,.1); }
+  .btn-phish{ border-color:var(--red); color:var(--red); background:transparent; }
+  .btn-phish:hover{ background:rgba(255,77,94,.1); }
+  .feedback{ margin:0 18px 18px; padding:14px; border-radius:8px; font-size:.92rem; display:none; }
+  .feedback.correct{ display:block; background:rgba(0,255,106,.08); border:1px solid var(--green); }
+  .feedback.wrong{ display:block; background:rgba(255,77,94,.08); border:1px solid var(--red); }
+  .game-progress{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px 0; font-family:var(--mono); font-size:.78rem; color:var(--text-dim); }
+  .score-pill{ color:var(--green-soft); }
+
+  /* ---------- Quiz ---------- */
+  .quiz-box{ background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:24px; max-width:680px; }
+  .quiz-q{ font-family:var(--mono); font-size:1rem; color:#eafff2; margin-bottom:16px; }
+  .quiz-opts{ display:grid; gap:10px; }
+  .quiz-opt{ text-align:left; background:var(--bg-2); border:1px solid var(--border); color:var(--text); padding:12px 14px; border-radius:8px; cursor:pointer; font-family:var(--sans); font-size:.95rem; }
+  .quiz-opt:hover{ border-color:var(--blue); }
+  .quiz-opt.correct{ border-color:var(--green); background:rgba(0,255,106,.08); }
+  .quiz-opt.incorrect{ border-color:var(--red); background:rgba(255,77,94,.08); }
+  .quiz-explain{ margin-top:14px; padding:12px 14px; border-radius:8px; background:var(--bg-2); border:1px solid var(--border); font-size:.9rem; display:none; }
+  .quiz-explain.show{ display:block; }
+  .quiz-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; font-family:var(--mono); font-size:.8rem; color:var(--text-dim); }
+  .quiz-result{ display:none; text-align:center; }
+  .quiz-result.show{ display:block; }
+  .quiz-result .big{ font-family:var(--mono); font-size:2.4rem; color:var(--green); font-weight:800; }
+
+  /* ---------- Tools / certs ---------- */
+  .tool-row{ display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .tool-row:last-child{ border-bottom:none; }
+  .tool-name{ font-family:var(--mono); font-weight:700; color:var(--blue); min-width:150px; flex:none; }
+  .cert-card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px; }
+  .cert-card .cert-name{ font-family:var(--mono); color:var(--green-soft); font-weight:700; margin-bottom:6px; display:block; }
+
+  /* ---------- Path / steps ---------- */
+  .step{ display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--border); }
+  .step:last-child{ border-bottom:none; }
+  .step-num{ font-family:var(--mono); font-weight:800; color:var(--green); font-size:1.1rem; flex:none; width:34px; }
+  .callout{ margin-top:26px; border-left:3px solid var(--red); background:rgba(255,77,94,.06); padding:16px 18px; border-radius:0 8px 8px 0; }
+  .callout b{ color:var(--red); }
+
+  /* ---------- Law section ---------- */
+  .law-card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; }
+  .law-card h4{ color:var(--blue); font-size:.95rem; }
+
+  footer{ padding:40px 0 calc(40px + var(--safe-b)); border-top:1px solid var(--border); text-align:center; color:var(--text-dim); font-family:var(--mono); font-size:.8rem; }
+  footer a{ color:var(--green-soft); }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .cursor{ animation:none !important; }
+  }
+
+  @media(max-width:760px){
+    nav.links{ display:none; }
+    #menuBtn{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo"><span class="dot">&gt;_</span> 0xLEARN</div>
+    <nav class="links">
+      <a href="#apa-itu" data-i18n="nav1">Dasar</a>
+      <a href="#serangan" data-i18n="nav2">Serangan</a>
+      <a href="#game" data-i18n="nav3">Latihan</a>
+      <a href="#karier" data-i18n="nav4">Karier</a>
+      <a href="#hukum" data-i18n="nav5">Hukum</a>
+    </nav>
+    <div class="nav-right">
+      <button id="langBtn" onclick="toggleLang()">🌐 <span id="langLabel">EN</span></button>
+      <button id="menuBtn" aria-label="menu" onclick="toggleMobileNav()"></button>
+    </div>
+  </div>
+  <nav class="links" id="mobileNav" style="display:none; flex-direction:column; padding:0 20px 16px; gap:14px;">
+    <a href="#apa-itu" data-i18n="nav1">Dasar</a>
+    <a href="#serangan" data-i18n="nav2">Serangan</a>
+    <a href="#game" data-i18n="nav3">Latihan</a>
+    <a href="#karier" data-i18n="nav4">Karier</a>
+    <a href="#hukum" data-i18n="nav5">Hukum</a>
+  </nav>
+</header>
+
+<section id="hero">
+  <canvas id="matrixCanvas"></canvas>
+  <div class="wrap">
+    <div class="terminal">
+      <div class="terminal-bar"><i></i><i></i><i></i></div>
+      <div class="terminal-body">
+        <div class="h1line" id="typedHeadline"></div>
+        <p data-i18n="heroSub">Belajar cara kerja peretasan, jenis-jenis serangan siber, dan cara melindungi diri — dijelaskan dengan bahasa sesederhana mungkin, tanpa panduan menyerang siapapun.</p>
+        <div class="hero-badges">
+          <span class="badge" data-i18n="badge1">Etis & Legal</span>
+          <span class="badge" data-i18n="badge2">Bahasa Sederhana</span>
+          <span class="badge" data-i18n="badge3">Interaktif</span>
+        </div>
+        <div class="hero-cta">
+          <a href="#apa-itu" class="btn btn-primary" data-i18n="heroCta1">Mulai Belajar</a>
+          <a href="#game" class="btn btn-ghost" data-i18n="heroCta2">Coba Latihan</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="apa-itu">
+  <div class="wrap">
+    <div class="kicker" data-i18n="k1">01 — DASAR</div>
+    <h2 class="section-title" data-i18n="apaItuTitle">Apa itu Hacking, Sebenarnya?</h2>
+    <p class="section-intro" data-i18n="apaItuIntro">Secara sederhana, hacking adalah cara mencari dan memanfaatkan celah dalam sistem komputer, jaringan, atau aplikasi. Celah itu bisa dimanfaatkan untuk kebaikan (memperbaiki keamanan) atau kejahatan (mencuri, merusak). Yang membedakan legal dan ilegal cuma satu hal: IZIN.</p>
+    <div class="grid grid-3" style="margin-top:20px;">
+      <div class="hat-card hat-white">
+        <h3><span class="hat-swatch"></span><span data-i18n="whiteTitle">White Hat</span></h3>
+        <p data-i18n="whiteDesc" style="margin:0;">Ethical hacker. Meretas dengan izin resmi untuk menemukan & melaporkan celah keamanan, supaya bisa diperbaiki.</p>
+      </div>
+      <div class="hat-card hat-grey">
+        <h3><span class="hat-swatch"></span><span data-i18n="greyTitle">Grey Hat</span></h3>
+        <p data-i18n="greyDesc" style="margin:0;">Meretas tanpa izin, tapi biasanya melapor ke pemilik sistem setelahnya. Tetap berisiko secara hukum walau niatnya baik.</p>
+      </div>
+      <div class="hat-card hat-black">
+        <h3><span class="hat-swatch"></span><span data-i18n="blackTitle">Black Hat</span></h3>
+        <p data-i18n="blackDesc" style="margin:0;">Meretas tanpa izin untuk kejahatan: mencuri data, uang, atau merusak sistem. Ini yang disebut cybercrime.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="serangan">
+  <div class="wrap">
+    <div class="kicker" data-i18n="k2">02 — KENALI ANCAMANNYA</div>
+    <h2 class="section-title" data-i18n="serTitle">9 Jenis Serangan Siber yang Wajib Kamu Kenali</h2>
+    <p class="section-intro" data-i18n="serIntro">Klik tiap kartu untuk lihat penjelasan sederhana, cara kerjanya secara konsep, dan cara melindungi diri. Tidak ada langkah teknis untuk menyerang — fokusnya cara kenali dan bertahan.</p>
+    <div class="attack-grid" id="attackGrid" style="margin-top:24px;"></div>
+  </div>
+</section>
+
+<section id="game">
+  <div class="wrap">
+    <div class="kicker" data-i18n="k3">03 — LATIHAN INTERAKTIF</div>
+    <h2 class="section-title" data-i18n="gameTitle">Bisakah Kamu Mengenali Phishing?</h2>
+    <p class="section-intro" data-i18n="gameIntro">Di bawah ini pesan/email contoh (fiktif). Tebak: ini aman, atau phishing?</p>
+    <div class="game-box" style="margin-top:20px;">
+      <div class="game-progress">
+        <span id="gameProgressLabel"></span>
+        <span class="score-pill" id="gameScoreLabel"></span>
+      </div>
+      <div style="padding:18px;">
+        <div class="msg-card" id="msgCard"></div>
+      </div>
+      <div class="game-controls">
+        <button class="btn btn-safe" onclick="answerGame(false)" data-i18n="gameBtnSafe">✓ Ini Aman</button>
+        <button class="btn btn-phish" onclick="answerGame(true)" data-i18n="gameBtnPhish">⚠ Ini Phishing</button>
+      </div>
+      <div class="feedback" id="gameFeedback"></div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:64px;" data-i18n="quizTitle">Kuis Cepat: Uji Pemahamanmu</h2>
+    <div class="quiz-box" style="margin-top:20px;">
+      <div id="quizActive">
+        <div class="quiz-q" id="quizQ"></div>
+        <div class="quiz-opts" id="quizOpts"></div>
+        <div class="quiz-explain" id="quizExplain"></div>
+        <div class="quiz-foot">
+          <span id="quizCounter"></span>
+          <button class="btn btn-ghost" id="quizNextBtn" style="display:none;" onclick="nextQuiz()" data-i18n="quizNext">Lanjut →</button>
+        </div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="big" id="quizScoreBig"></div>
+        <p id="quizScoreText" style="margin:8px auto;"></p>
+        <button class="btn btn-primary" onclick="restartQuiz()" data-i18n="quizRestart">Ulangi Kuis</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="kicker" data-i18n="k4">04 — ALAT PROFESIONAL</div>
+    <h2 class="section-title" data-i18n="toolsTitle">Alat yang Dipakai Profesional Keamanan Siber</h2>
+    <p class="section-intro" data-i18n="toolsIntro">Ini bukan tutorial pakai alat-alat ini — hanya pengenalan supaya kamu tahu apa yang biasa dipakai profesional dan untuk apa fungsinya.</p>
+    <div id="toolsList" style="margin-top:10px;"></div>
+
+    <h3 style="margin-top:48px; font-size:1.2rem;" data-i18n="certsTitle">Sertifikasi Populer di Industri</h3>
+    <div class="grid grid-2" id="certsGrid" style="margin-top:16px;"></div>
+  </div>
+</section>
+
+<section id="karier">
+  <div class="wrap">
+    <div class="kicker" data-i18n="k5">05 — JALUR KARIER LEGAL</div>
+    <h2 class="section-title" data-i18n="karierTitle">Cara Jadi Ethical Hacker (Beneran, dan Legal)</h2>
+    <div id="stepsList" style="margin-top:10px;"></div>
+    <div class="callout">
+      <p style="margin:0;"><b data-i18n="calloutBold">ATURAN EMAS:</b> <span data-i18n="calloutText">Jangan pernah mencoba meretas sistem apapun tanpa izin tertulis eksplisit dari pemiliknya — sekalipun niatmu baik. Tanpa izin, itu tindak pidana di hampir semua negara, termasuk Indonesia.</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="hukum">
+  <div class="wrap">
+    <div class="kicker" data-i18n="k6">06 — ETIKA & HUKUM</div>
+    <h2 class="section-title" data-i18n="hukumTitle">Hacking, Etika, dan Hukum</h2>
+    <p class="section-intro" data-i18n="hukumIntro">Teknik di balik hacking itu netral. Yang membuatnya legal atau kejahatan hanya satu hal: apakah kamu punya izin.</p>
+    <div class="grid grid-2" style="margin-top:20px;">
+      <div class="law-card">
+        <h4 data-i18n="lawIdTitle">🇮🇩 Indonesia — UU ITE</h4>
+        <p data-i18n="lawIdText" style="margin:0;">UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik (diubah dengan UU No. 19 Tahun 2016, dan diubah lagi dengan UU No. 1 Tahun 2024). Pasal 30 melarang mengakses komputer/sistem elektronik milik orang lain tanpa hak. Pelanggarannya bisa dipidana penjara dan denda (Pasal 46), dan hukumannya bisa diperberat (Pasal 52) kalau targetnya sistem pemerintah/infrastruktur penting atau pelakunya korporasi.</p>
+      </div>
+      <div class="law-card">
+        <h4 data-i18n="lawIntlTitle">🌍 Internasional</h4>
+        <p data-i18n="lawIntlText" style="margin:0;">Banyak negara punya aturan serupa, misalnya Computer Fraud and Abuse Act (CFAA) di Amerika Serikat. Ada juga Budapest Convention on Cybercrime yang jadi acuan kerja sama lintas negara dalam menangani kejahatan siber.</p>
+      </div>
+    </div>
+    <div class="callout" style="border-left-color:var(--blue); background:rgba(47,214,255,.06);">
+      <p style="margin:0;"><b style="color:var(--blue);" data-i18n="ethicalBold">Catatan penting:</b> <span data-i18n="ethicalText">Bahkan ethical hacker bisa tetap kena jerat hukum kalau tidak ada izin tertulis (scope pentest) yang jelas — meski niatnya baik atau berhasil menemukan celah nyata. Selalu pastikan ada persetujuan resmi sebelum menguji sistem siapapun.</span></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p data-i18n="footerText" style="margin:0 0 6px; color:var(--text-dim); font-family:var(--sans);">Situs ini murni untuk edukasi keamanan siber. Tidak ada instruksi teknis untuk menyerang sistem siapapun.</p>
+  <p style="margin:0;">0xLEARN — <span data-i18n="footerNote">belajar bertahan, bukan menyerang.</span></p>
+</footer>
+
+<script>
+/* ============ i18n: static strings ============ */
+const STRINGS = {
+  nav1:{id:"Dasar", en:"Basics"}, nav2:{id:"Serangan", en:"Attacks"}, nav3:{id:"Latihan", en:"Practice"},
+  nav4:{id:"Karier", en:"Career"}, nav5:{id:"Hukum", en:"Law"},
+  heroSub:{id:"Belajar cara kerja peretasan, jenis-jenis serangan siber, dan cara melindungi diri — dijelaskan dengan bahasa sesederhana mungkin, tanpa panduan menyerang siapapun.",
+           en:"Learn how hacking actually works, the main types of cyber attacks, and how to protect yourself — explained in the simplest language possible, with no step-by-step guide for attacking anyone."},
+  badge1:{id:"Etis & Legal", en:"Ethical & Legal"}, badge2:{id:"Bahasa Sederhana", en:"Plain Language"}, badge3:{id:"Interaktif", en:"Interactive"},
+  heroCta1:{id:"Mulai Belajar", en:"Start Learning"}, heroCta2:{id:"Coba Latihan", en:"Try the Practice"},
+  k1:{id:"01 — DASAR", en:"01 — BASICS"}, k2:{id:"02 — KENALI ANCAMANNYA", en:"02 — KNOW THE THREATS"},
+  k3:{id:"03 — LATIHAN INTERAKTIF", en:"03 — INTERACTIVE PRACTICE"}, k4:{id:"04 — ALAT PROFESIONAL", en:"04 — PROFESSIONAL TOOLS"},
+  k5:{id:"05 — JALUR KARIER LEGAL", en:"05 — LEGAL CAREER PATH"}, k6:{id:"06 — ETIKA & HUKUM", en:"06 — ETHICS & LAW"},
+  apaItuTitle:{id:"Apa itu Hacking, Sebenarnya?", en:"What Is Hacking, Really?"},
+  apaItuIntro:{id:"Secara sederhana, hacking adalah cara mencari dan memanfaatkan celah dalam sistem komputer, jaringan, atau aplikasi. Celah itu bisa dimanfaatkan untuk kebaikan (memperbaiki keamanan) atau kejahatan (mencuri, merusak). Yang membedakan legal dan ilegal cuma satu hal: IZIN.",
+    en:"In simple terms, hacking is finding and exploiting weaknesses in a computer system, network, or application. Those weaknesses can be used for good (fixing security) or for crime (stealing, damaging). What separates legal from illegal comes down to one thing: PERMISSION."},
+  whiteTitle:{id:"White Hat", en:"White Hat"},
+  whiteDesc:{id:"Ethical hacker. Meretas dengan izin resmi untuk menemukan & melaporkan celah keamanan, supaya bisa diperbaiki.",
+    en:"Ethical hacker. Hacks with official permission to find and report security flaws so they can be fixed."},
+  greyTitle:{id:"Grey Hat", en:"Grey Hat"},
+  greyDesc:{id:"Meretas tanpa izin, tapi biasanya melapor ke pemilik sistem setelahnya. Tetap berisiko secara hukum walau niatnya baik.",
+    en:"Hacks without permission, but usually reports the flaw to the owner afterward. Still legally risky even with good intentions."},
+  blackTitle:{id:"Black Hat", en:"Black Hat"},
+  blackDesc:{id:"Meretas tanpa izin untuk kejahatan: mencuri data, uang, atau merusak sistem. Ini yang disebut cybercrime.",
+    en:"Hacks without permission for crime: stealing data, money, or damaging systems. This is cybercrime."},
+  serTitle:{id:"9 Jenis Serangan Siber yang Wajib Kamu Kenali", en:"9 Types of Cyber Attacks You Should Know"},
+  serIntro:{id:"Klik tiap kartu untuk lihat penjelasan sederhana, cara kerjanya secara konsep, dan cara melindungi diri. Tidak ada langkah teknis untuk menyerang — fokusnya cara kenali dan bertahan.",
+    en:"Click each card for a simple explanation, the concept behind how it works, and how to protect yourself. No technical attack steps — the focus is recognizing and defending."},
+  gameTitle:{id:"Bisakah Kamu Mengenali Phishing?", en:"Can You Spot a Phishing Message?"},
+  gameIntro:{id:"Di bawah ini pesan/email contoh (fiktif). Tebak: ini aman, atau phishing?", en:"Below are example messages/emails (fictional). Guess: is it safe, or phishing?"},
+  gameBtnSafe:{id:"✓ Ini Aman", en:"✓ It's Safe"}, gameBtnPhish:{id:"⚠ Ini Phishing", en:"⚠ It's Phishing"},
+  quizTitle:{id:"Kuis Cepat: Uji Pemahamanmu", en:"Quick Quiz: Test Yourself"},
+  quizNext:{id:"Lanjut →", en:"Next →"}, quizRestart:{id:"Ulangi Kuis", en:"Retake Quiz"},
+  toolsTitle:{id:"Alat yang Dipakai Profesional Keamanan Siber", en:"Tools Used by Cybersecurity Professionals"},
+  toolsIntro:{id:"Ini bukan tutorial pakai alat-alat ini — hanya pengenalan supaya kamu tahu apa yang biasa dipakai profesional dan untuk apa fungsinya.",
+    en:"This isn't a how-to-use tutorial — just an introduction so you know what professionals commonly use and what each tool is for."},
+  certsTitle:{id:"Sertifikasi Populer di Industri", en:"Popular Industry Certifications"},
+  karierTitle:{id:"Cara Jadi Ethical Hacker (Beneran, dan Legal)", en:"How to Become an Ethical Hacker (For Real, Legally)"},
+  calloutBold:{id:"ATURAN EMAS:", en:"GOLDEN RULE:"},
+  calloutText:{id:"Jangan pernah mencoba meretas sistem apapun tanpa izin tertulis eksplisit dari pemiliknya — sekalipun niatmu baik. Tanpa izin, itu tindak pidana di hampir semua negara, termasuk Indonesia.",
+    en:"Never attempt to hack any system without explicit written permission from its owner — even with good intentions. Without permission, it's a crime in nearly every country, including Indonesia."},
+  hukumTitle:{id:"Hacking, Etika, dan Hukum", en:"Hacking, Ethics, and the Law"},
+  hukumIntro:{id:"Teknik di balik hacking itu netral. Yang membuatnya legal atau kejahatan hanya satu hal: apakah kamu punya izin.",
+    en:"The technique behind hacking is neutral. What makes it legal or criminal comes down to one thing: whether you have permission."},
+  lawIdTitle:{id:"🇮🇩 Indonesia — UU ITE", en:"🇮🇩 Indonesia — the ITE Law"},
+  lawIdText:{id:"UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik (diubah dengan UU No. 19 Tahun 2016, dan diubah lagi dengan UU No. 1 Tahun 2024). Pasal 30 melarang mengakses komputer/sistem elektronik milik orang lain tanpa hak. Pelanggarannya bisa dipidana penjara dan denda (Pasal 46), dan hukumannya bisa diperberat (Pasal 52) kalau targetnya sistem pemerintah/infrastruktur penting atau pelakunya korporasi.",
+    en:"Indonesia's Law No. 11/2008 on Electronic Information and Transactions (ITE Law), amended by Law No. 19/2016 and again by Law No. 1/2024. Article 30 bans accessing someone else's computer or electronic system without authorization. Violations carry prison and fines (Article 46), with harsher penalties (Article 52) when the target is a government system, critical infrastructure, or the offender is a corporation."},
+  lawIntlTitle:{id:"🌍 Internasional", en:"🌍 International"},
+  lawIntlText:{id:"Banyak negara punya aturan serupa, misalnya Computer Fraud and Abuse Act (CFAA) di Amerika Serikat. Ada juga Budapest Convention on Cybercrime yang jadi acuan kerja sama lintas negara dalam menangani kejahatan siber.",
+    en:"Many countries have similar laws, such as the Computer Fraud and Abuse Act (CFAA) in the United States. There's also the Budapest Convention on Cybercrime, a reference point for cross-border cooperation on cybercrime."},
+  ethicalBold:{id:"Catatan penting:", en:"Important note:"},
+  ethicalText:{id:"Bahkan ethical hacker bisa tetap kena jerat hukum kalau tidak ada izin tertulis (scope pentest) yang jelas — meski niatnya baik atau berhasil menemukan celah nyata. Selalu pastikan ada persetujuan resmi sebelum menguji sistem siapapun.",
+    en:"Even an ethical hacker can still face legal consequences without a clear written authorization (pentest scope) — even with good intentions or a real flaw found. Always secure formal approval before testing anyone's system."},
+  footerText:{id:"Situs ini murni untuk edukasi keamanan siber. Tidak ada instruksi teknis untuk menyerang sistem siapapun.",
+    en:"This site is purely for cybersecurity education. It contains no technical instructions for attacking anyone's systems."},
+  footerNote:{id:"belajar bertahan, bukan menyerang.", en:"learn to defend, not to attack."},
+};
+
+/* ============ Data: attack cards ============ */
+const ATTACKS = [
+  { code:"PH", id:{ t:"Phishing", w:"Penipu berpura-pura jadi pihak terpercaya (bank, HRD, teman) lewat email, pesan, atau link palsu, supaya kamu memberi info pribadi (password, OTP, nomor kartu) atau meng-klik sesuatu yang berbahaya.",
+      h:"Pengirim meniru tampilan resmi, menciptakan rasa terburu-buru/takut/penasaran, lalu mengarahkanmu ke halaman login palsu atau lampiran berbahaya.",
+      p:["Cek alamat pengirim asli, bukan cuma nama tampilannya","Jangan klik link mencurigakan — ketik alamat resmi sendiri di browser","Aktifkan 2FA/MFA di akun penting","Jangan pernah bagikan kode OTP ke siapapun, termasuk yang mengaku CS bank"] },
+    en:{ t:"Phishing", w:"A scammer pretends to be someone trustworthy (a bank, HR, a friend) through a fake email, message, or link, to trick you into giving personal info (password, OTP, card number) or clicking something harmful.",
+      h:"The sender copies an official look, creates urgency, fear, or curiosity, then directs you to a fake login page or a malicious attachment.",
+      p:["Check the actual sender address, not just the display name","Don't click suspicious links — type the official address yourself","Turn on 2FA/MFA for important accounts","Never share an OTP code with anyone, even someone claiming to be support"] } },
+  { code:"MW", id:{ t:"Malware", w:"Perangkat lunak jahat yang menyusup ke perangkatmu, seperti \"penyakit\" digital. Bentuknya macam-macam: virus, worm, trojan, spyware.",
+      h:"Menyusup lewat file/lampiran email, software bajakan, atau USB, lalu menjalankan aksi jahat: mencuri data, merusak sistem, atau memata-matai aktivitasmu.",
+      p:["Pakai antivirus/anti-malware yang selalu diperbarui","Hindari install software bajakan dari sumber tak resmi","Hati-hati membuka lampiran email dari pengirim tak dikenal","Update sistem operasi & aplikasi secara rutin"] },
+    en:{ t:"Malware", w:"Malicious software that sneaks onto your device, like a digital \"disease\". It comes in many forms: viruses, worms, trojans, spyware.",
+      h:"It gets in through email attachments, pirated software, or USB drives, then carries out harmful actions: stealing data, damaging the system, or spying on your activity.",
+      p:["Use antivirus/anti-malware software and keep it updated","Avoid installing pirated software from unofficial sources","Be careful opening email attachments from unknown senders","Update your OS and apps regularly"] } },
+  { code:"RW", id:{ t:"Ransomware", w:"Jenis malware yang mengunci atau mengenkripsi file-filemu, lalu meminta tebusan (biasanya kripto) supaya file itu bisa dibuka kembali.",
+      h:"Masuk lewat phishing atau celah software yang belum ditambal, mengenkripsi file di perangkatmu, lalu menampilkan pesan permintaan tebusan.",
+      p:["Backup data secara rutin dan simpan terpisah (offline/cloud terpisah)","Jangan bayar tebusan — tidak ada jaminan file benar-benar kembali","Selalu update sistem dan software segera setelah patch tersedia","Latih diri/karyawan mengenali email phishing sebagai pintu masuk utama"] },
+    en:{ t:"Ransomware", w:"A type of malware that locks or encrypts your files, then demands a ransom (usually in crypto) to unlock them.",
+      h:"It gets in through phishing or an unpatched software flaw, encrypts files on your device, then displays a ransom demand.",
+      p:["Back up data regularly and keep a copy separate (offline/separate cloud)","Don't pay the ransom — there's no guarantee your files come back","Keep systems and software updated as soon as patches are available","Train yourself/employees to spot phishing, its main entry point"] } },
+  { code:"DD", id:{ t:"DDoS (Distributed Denial-of-Service)", w:"Seperti ribuan orang menelpon satu nomor secara bersamaan sampai saluran macet total — orang lain yang benar-benar butuh jadi tidak bisa masuk.",
+      h:"Banyak perangkat (sering berupa jaringan komputer yang sudah disusupi, disebut botnet) mengirim traffic ke satu server target secara bersamaan sampai server itu kewalahan dan layanannya lumpuh bagi pengguna asli.",
+      p:["Gunakan layanan anti-DDoS/CDN (mis. jasa mitigasi traffic)","Terapkan rate limiting pada trafik masuk","Rancang arsitektur server yang redundant (tidak bergantung 1 titik)","Pantau traffic secara real-time untuk deteksi dini"] },
+    en:{ t:"DDoS (Distributed Denial-of-Service)", w:"Like thousands of people calling one phone number at the same time until the line jams completely — people who genuinely need to get through can't.",
+      h:"Many devices (often a compromised network called a botnet) flood a single target server with traffic at once, overwhelming it so the service goes down for real users.",
+      p:["Use anti-DDoS/CDN services (traffic mitigation providers)","Apply rate limiting on incoming traffic","Design redundant server architecture, not dependent on one point","Monitor traffic in real time for early detection"] } },
+  { code:"SQ", id:{ t:"SQL Injection", w:"Menyisipkan \"perintah tersembunyi\" ke kolom input di website (misalnya kolom login) supaya database mengeluarkan data rahasia atau berubah aturan mainnya.",
+      h:"Terjadi ketika sebuah website tidak memvalidasi/menyaring input pengguna sebelum dipakai untuk membentuk perintah ke database.",
+      p:["(Untuk developer) Gunakan prepared statements/parameterized query","Validasi dan sanitasi semua input pengguna","Terapkan hak akses akun database seminimal mungkin (least privilege)","Pasang Web Application Firewall (WAF)"] },
+    en:{ t:"SQL Injection", w:"Slipping a \"hidden command\" into a website's input field (like a login box) so the database leaks secret data or behaves differently than intended.",
+      h:"It happens when a website fails to validate or filter user input before using it to build a database command.",
+      p:["(For developers) Use prepared statements/parameterized queries","Validate and sanitize all user input","Apply least-privilege access on database accounts","Deploy a Web Application Firewall (WAF)"] } },
+  { code:"MI", id:{ t:"Man-in-the-Middle (MITM)", w:"Seseorang menyusup diam-diam di tengah percakapan dua pihak, menyadap bahkan mengubah pesan tanpa ketahuan.",
+      h:"Penyerang menyadap koneksi (misalnya lewat Wi-Fi publik yang tidak terenkripsi) di antara penggunamu dan server, lalu membaca atau mengubah data yang lewat.",
+      p:["Pastikan situs pakai HTTPS (ikon gembok di browser)","Hindari transaksi sensitif lewat Wi-Fi publik tanpa VPN","Periksa peringatan sertifikat keamanan di browser","Gunakan aplikasi dengan enkripsi end-to-end untuk komunikasi penting"] },
+    en:{ t:"Man-in-the-Middle (MITM)", w:"Someone quietly sits in between two parties' conversation, intercepting or even altering messages without either side noticing.",
+      h:"The attacker intercepts a connection (e.g. via unencrypted public Wi-Fi) between your device and a server, then reads or alters the data passing through.",
+      p:["Make sure sites use HTTPS (the padlock icon in your browser)","Avoid sensitive transactions over public Wi-Fi without a VPN","Pay attention to browser certificate warnings","Use apps with end-to-end encryption for important communication"] } },
+  { code:"BF", id:{ t:"Brute Force", w:"Mencoba semua kemungkinan kombinasi password satu per satu sampai ada yang cocok — biasanya dibantu komputer yang bisa mencoba ribuan kombinasi per detik.",
+      h:"Program otomatis mencoba banyak kombinasi username/password secara berulang ke satu sistem login sampai berhasil masuk.",
+      p:["Gunakan password yang panjang, unik, dan tidak dipakai ulang","Aktifkan batas percobaan login (lockout) setelah beberapa kali gagal","Aktifkan MFA/2FA","Gunakan password manager agar tak perlu mengingat-ingat"] },
+    en:{ t:"Brute Force", w:"Trying every possible password combination one by one until one works — usually with a computer's help, trying thousands of combinations per second.",
+      h:"An automated program repeatedly tries many username/password combinations against a login system until one succeeds.",
+      p:["Use long, unique passwords you don't reuse elsewhere","Enable login attempt limits (lockout) after repeated failures","Turn on MFA/2FA","Use a password manager so you don't have to memorize passwords"] } },
+  { code:"SE", id:{ t:"Social Engineering", w:"Memanipulasi psikologi manusia — rasa percaya, takut, ingin menolong, atau terburu-buru — supaya seseorang secara sukarela memberi akses atau info rahasia. Targetnya manusia, bukan sistem.",
+      h:"Pelaku berpura-pura jadi IT support, atasan, atau kurir, membangun kepercayaan, lalu meminta akses atau informasi sensitif.",
+      p:["Selalu verifikasi identitas lewat jalur resmi yang terpisah (telepon balik ke nomor resmi, bukan yang diberi si penelepon)","Punya prosedur baku untuk permintaan akses/data sensitif","Ikuti pelatihan & simulasi kesadaran keamanan secara rutin","Jangan malu untuk menolak atau menunda permintaan mendadak"] },
+    en:{ t:"Social Engineering", w:"Manipulating human psychology — trust, fear, the urge to help, or urgency — so someone willingly hands over access or confidential info. The real target is the person, not the system.",
+      h:"The attacker poses as IT support, a manager, or a courier, builds trust, then requests sensitive access or information.",
+      p:["Always verify identity through a separate official channel (call back an official number, not one the caller gave you)","Have a standard procedure for sensitive access/data requests","Take part in regular security awareness training and drills","Don't feel bad about refusing or delaying an urgent-sounding request"] } },
+  { code:"ZD", id:{ t:"Zero-Day", w:"Celah keamanan di sebuah software yang belum diketahui atau belum diperbaiki oleh pembuatnya. Istilah \"zero-day\" berarti pembuatnya punya \"nol hari\" untuk memperbaiki sebelum celah itu dieksploitasi.",
+      h:"Penyerang menemukan celah tersebut lebih dulu daripada pembuat software, lalu memanfaatkannya sebelum ada tambalan (patch) resmi.",
+      p:["Update software secepat mungkin setelah patch resmi tersedia","Gunakan sistem deteksi berbasis perilaku, bukan hanya signature lama","Terapkan pertahanan berlapis (defense in depth), jangan andalkan satu lapis keamanan saja","Ikuti pengumuman keamanan resmi dari vendor software yang dipakai"] },
+    en:{ t:"Zero-Day", w:"A security flaw in software that its maker doesn't yet know about or hasn't fixed. \"Zero-day\" means the maker has had \"zero days\" to fix it before it gets exploited.",
+      h:"Attackers discover the flaw before the software maker does, then exploit it before an official patch exists.",
+      p:["Update software as soon as an official patch is available","Use behavior-based detection, not just old signature lists","Apply defense in depth — don't rely on a single layer of security","Follow official security advisories from the software vendors you use"] } },
+];
+
+/* ============ Data: phishing game ============ */
+const PHISH_SAMPLES = [
+  { phish:true,
+    id:{ from:"security@bank-verifikasi-akun.com", subj:"Akun Anda Akan Diblokir dalam 24 Jam!",
+      body:"Kami mendeteksi aktivitas mencurigakan pada akun Anda. Klik link berikut untuk verifikasi sekarang:\nbit.ly/verif-akun-resmi23\n\nJika tidak, akun akan diblokir permanen.",
+      why:"PHISHING. Domain pengirim aneh (bukan domain resmi bank), ada ancaman & tenggat waktu untuk memaksa buru-buru, dan link memakai pemendek URL yang menyembunyikan tujuan aslinya." },
+    en:{ from:"security@bank-verifikasi-akun.com", subj:"Your Account Will Be Blocked in 24 Hours!",
+      body:"We detected suspicious activity on your account. Click the link below to verify now:\nbit.ly/verif-akun-resmi23\n\nOtherwise your account will be permanently blocked.",
+      why:"PHISHING. The sender's domain is odd (not the bank's real domain), there's a threat plus a deadline to force urgency, and the link uses a shortener that hides where it really goes." } },
+  { phish:false,
+    id:{ from:"hr@perusahaanmu.co.id", subj:"Reminder: Timesheet Minggu Ini",
+      body:"Halo, jangan lupa submit timesheet kamu sebelum hari Jumat ya. Kalau ada kendala, langsung hubungi HR di ruangan seperti biasa. Terima kasih!",
+      why:"AMAN. Domain pengirim sesuai perusahaan asli, tidak ada permintaan info sensitif, tidak ada link mencurigakan, dan tidak ada tekanan/ancaman berlebihan." },
+    en:{ from:"hr@yourcompany.co.id", subj:"Reminder: This Week's Timesheet",
+      body:"Hi, don't forget to submit your timesheet before Friday. If you run into issues, just reach out to HR in person as usual. Thanks!",
+      why:"SAFE. The sender domain matches the real company, there's no request for sensitive info, no suspicious link, and no excessive pressure or threats." } },
+  { phish:true,
+    id:{ from:"no-reply@bankaman-alert-security.info", subj:"Verifikasi Keamanan Diperlukan",
+      body:"Kami mendeteksi login mencurigakan. Masukkan PIN dan password lengkap Anda di formulir berikut untuk verifikasi:\nhttp://bankaman-security-check.info/verify",
+      why:"PHISHING. Bank yang sah TIDAK PERNAH meminta PIN atau password lengkap lewat email atau form. Domain juga bukan domain resmi bank." },
+    en:{ from:"no-reply@bankaman-alert-security.info", subj:"Security Verification Required",
+      body:"We detected a suspicious login. Enter your full PIN and password in the form below to verify:\nhttp://bankaman-security-check.info/verify",
+      why:"PHISHING. A legitimate bank NEVER asks for your PIN or full password by email or form. The domain also isn't the bank's official one." } },
+  { phish:false,
+    id:{ from:"noreply@github.com", subj:"Kata sandi Anda berhasil diubah",
+      body:"Kata sandi akun GitHub Anda baru saja diubah. Jika ini bukan Anda, segera amankan akun lewat halaman resmi:\ngithub.com/settings/security",
+      why:"AMAN. Ini notifikasi standar dari domain resmi (github.com, bukan tiruan), dan tidak meminta kamu memasukkan password di pesan itu sendiri." },
+    en:{ from:"noreply@github.com", subj:"Your password was changed",
+      body:"Your GitHub password was just changed. If this wasn't you, secure your account right away via the official page:\ngithub.com/settings/security",
+      why:"SAFE. This is a standard notification from the official domain (github.com, not a lookalike), and it doesn't ask you to enter a password in the message itself." } },
+  { phish:true,
+    id:{ from:"Kontak WhatsApp: \"Rina (No. Baru)\"", subj:"—",
+      body:"Halo, ini nomor WhatsApp baruku ya. Btw kamu lagi ada dana lebih ga? Aku lagi butuh banget, nanti aku ganti double minggu depan. Transfer ke rekening ini ya...",
+      why:"PHISHING / Social Engineering. Akun teman kemungkinan diretas atau ditiru. Permintaan uang mendadak dari \"nomor baru\" adalah pola penipuan yang sangat umum." },
+    en:{ from:"WhatsApp contact: \"Sarah (New Number)\"", subj:"—",
+      body:"Hi, this is my new WhatsApp number. Hey, do you have some spare cash right now? I really need it, I'll pay you back double next week. Send it to this account...",
+      why:"PHISHING / Social Engineering. The friend's account is likely hacked or impersonated. A sudden money request from a \"new number\" is an extremely common scam pattern." } },
+  { phish:false,
+    id:{ from:"newsletter@nationalgeographic.com", subj:"Edisi Minggu Ini: Kehidupan di Laut Dalam",
+      body:"Halo! Cek artikel terbaru kami tentang makhluk laut dalam yang baru ditemukan. Baca selengkapnya di situs resmi kami. Ingin berhenti berlangganan? Klik unsubscribe di bawah.",
+      why:"AMAN. Ini newsletter biasa, tidak meminta data pribadi/keuangan apapun, dan tautannya wajar untuk konten artikel serta unsubscribe standar." },
+    en:{ from:"newsletter@nationalgeographic.com", subj:"This Week: Life in the Deep Sea",
+      body:"Hi! Check out our latest article on newly discovered deep-sea creatures. Read more on our official site. Want to unsubscribe? Click below.",
+      why:"SAFE. This is an ordinary newsletter, it doesn't ask for any personal/financial data, and the links are normal for article content and a standard unsubscribe." } },
+];
+
+/* ============ Data: quiz ============ */
+const QUIZ = [
+  { id:{ q:"Kamu dapat email dari \"bank\" yang minta klik link untuk \"verifikasi akun\" dalam 24 jam atau akun diblokir. Ini contoh dari apa?",
+      opts:["Phishing","DDoS","Zero-day","Brute force"], correct:0,
+      ex:"Betul! Ancaman + tenggat waktu + link untuk memberi info = pola klasik phishing." },
+    en:{ q:"You get an email from \"the bank\" asking you to click a link to \"verify your account\" within 24 hours or it gets blocked. What is this an example of?",
+      opts:["Phishing","DDoS","Zero-day","Brute force"], correct:0,
+      ex:"Correct! Threat + deadline + a link asking for info = the classic phishing pattern." } },
+  { id:{ q:"HTTPS dan enkripsi paling utama membantu mencegah jenis serangan apa?",
+      opts:["Man-in-the-Middle (MITM)","DDoS","Malware","Social engineering"], correct:0,
+      ex:"Betul! Enkripsi membuat data yang lewat tak bisa dibaca/diubah walau ada yang menyadap koneksinya." },
+    en:{ q:"HTTPS and encryption mainly help prevent which type of attack?",
+      opts:["Man-in-the-Middle (MITM)","DDoS","Malware","Social engineering"], correct:0,
+      ex:"Correct! Encryption makes intercepted data unreadable/unmodifiable even if someone taps the connection." } },
+  { id:{ q:"Cara terbaik melindungi akun dari serangan brute force adalah?",
+      opts:["Mematikan Wi-Fi di rumah","Mengaktifkan MFA/2FA","Uninstall antivirus","Pakai password yang sama di semua akun"], correct:1,
+      ex:"Betul! MFA/2FA membuat password saja tidak cukup untuk masuk, walau berhasil ditebak." },
+    en:{ q:"What's the best way to protect an account from brute force attacks?",
+      opts:["Turning off Wi-Fi at home","Enabling MFA/2FA","Uninstalling antivirus","Using the same password on every account"], correct:1,
+      ex:"Correct! MFA/2FA means a password alone isn't enough to log in, even if it's guessed correctly." } },
+  { id:{ q:"Cara paling efektif mengurangi dampak ransomware adalah?",
+      opts:["Membayar tebusan secepatnya","Backup data rutin & terpisah","Mematikan firewall","Klik semua link untuk mengeceknya"], correct:1,
+      ex:"Betul! Kalau ada backup terpisah, kamu bisa pulihkan data tanpa perlu membayar tebusan sama sekali." },
+    en:{ q:"What's the most effective way to reduce ransomware's impact?",
+      opts:["Paying the ransom quickly","Regular, separate backups","Turning off the firewall","Clicking every link to check them"], correct:1,
+      ex:"Correct! With a separate backup, you can restore your data without ever needing to pay a ransom." } },
+  { id:{ q:"Apa yang membedakan seorang \"ethical hacker\" (white hat) dari peretas ilegal?",
+      opts:["Pakai sistem operasi Linux","Sangat jago pemrograman","Punya izin tertulis dari pemilik sistem","Punya laptop mahal"], correct:2,
+      ex:"Betul! Tekniknya bisa sama persis — yang membedakan legal atau tidak murni soal izin tertulis dari pemilik sistem." },
+    en:{ q:"What separates an \"ethical hacker\" (white hat) from an illegal one?",
+      opts:["Using Linux","Being great at programming","Having written permission from the system owner","Owning an expensive laptop"], correct:2,
+      ex:"Correct! The technique can be identical — what makes it legal or not comes down purely to written permission from the system owner." } },
+];
+
+/* ============ Data: tools & certs ============ */
+const TOOLS = [
+  { name:"Nmap", id:"Pemindai jaringan (network scanner) untuk memetakan perangkat dan port yang terbuka. Dipakai admin jaringan dan pentester untuk mengecek celah keamanan.",
+    en:"A network scanner used to map devices and open ports. Used by network admins and pentesters to check for security gaps." },
+  { name:"Wireshark", id:"Penganalisis paket jaringan (packet analyzer) untuk melihat dan mendiagnosis lalu lintas data di jaringan.",
+    en:"A network packet analyzer for viewing and diagnosing network traffic." },
+  { name:"Burp Suite", id:"Proxy untuk menguji keamanan aplikasi web. Sangat populer di kalangan bug bounty hunter dan penguji aplikasi web.",
+    en:"A proxy for testing web application security. Very popular among bug bounty hunters and web app testers." },
+  { name:"Metasploit", id:"Framework pengujian penetrasi untuk mensimulasikan serangan secara terkendali, hanya pada sistem yang sudah punya izin resmi.",
+    en:"A penetration testing framework for simulating attacks in a controlled way, only against systems with official authorization." },
+  { name:"Kali Linux", id:"Distribusi Linux yang sudah dilengkapi banyak tools keamanan siber, dipakai profesional untuk pentest dan digital forensic.",
+    en:"A Linux distribution pre-loaded with many cybersecurity tools, used by professionals for pentesting and digital forensics." },
+];
+const CERTS = [
+  { name:"CompTIA Security+", id:"Sertifikasi dasar (entry-level) untuk pemula yang ingin memulai karier di keamanan siber.",
+    en:"An entry-level certification for beginners starting a cybersecurity career." },
+  { name:"CEH (Certified Ethical Hacker)", id:"Berfokus mengenalkan metodologi dan cara berpikir ala ethical hacker.",
+    en:"Focuses on introducing ethical hacking methodology and mindset." },
+  { name:"OSCP (Offensive Security Certified Professional)", id:"Sertifikasi hands-on yang terkenal sulit dan sangat dihormati industri, fokus pada penetration testing praktik nyata.",
+    en:"A famously difficult, highly respected hands-on certification focused on real-world penetration testing." },
+  { name:"CISSP", id:"Sertifikasi level senior/manajerial untuk keamanan informasi secara menyeluruh.",
+    en:"A senior/managerial-level certification covering information security holistically." },
+];
+const STEPS = [
+  { id:"Kuasai dasar: cara kerja jaringan komputer, sistem operasi (Linux/Windows), dan dasar pemrograman/scripting.",
+    en:"Master the basics: how computer networks work, operating systems (Linux/Windows), and basic programming/scripting." },
+  { id:"Latihan di platform legal: TryHackMe, HackTheBox, PicoCTF, OverTheWire — semuanya dirancang khusus untuk dipraktikkan secara aman dan legal.",
+    en:"Practice on legal platforms: TryHackMe, HackTheBox, PicoCTF, OverTheWire — all designed specifically for safe, legal practice." },
+  { id:"Ikut kompetisi CTF (Capture The Flag) untuk mengasah kemampuan lewat tantangan nyata.",
+    en:"Join CTF (Capture The Flag) competitions to sharpen your skills through real challenges." },
+  { id:"Ambil sertifikasi sesuai jenjang, mulai dari Security+ → CEH/eJPT → OSCP → CISSP.",
+    en:"Get certified progressively, starting from Security+ → CEH/eJPT → OSCP → CISSP." },
+  { id:"Coba program bug bounty resmi (HackerOne, Bugcrowd) — dapat izin resmi dan bisa dibayar untuk menemukan celah keamanan secara legal.",
+    en:"Try official bug bounty programs (HackerOne, Bugcrowd) — get official authorization and get paid for finding security flaws legally." },
+];
+
+/* ============ state ============ */
+let lang = (localStorage.getItem('cyberedu_lang')) || 'id';
+let gameIndex = 0, gameScore = 0, gameOrder = [];
+let quizIndex = 0, quizScore = 0, quizAnswered = false;
+
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.documentElement.dataset.lang = lang;
+  document.getElementById('langLabel').textContent = lang === 'id' ? 'EN' : 'ID';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(STRINGS[key]) el.textContent = STRINGS[key][lang];
+  });
+}
+
+function toggleLang(){
+  lang = lang === 'id' ? 'en' : 'id';
+  try{ localStorage.setItem('cyberedu_lang', lang); }catch(e){}
+  applyStatic();
+  renderAttacks();
+  renderTools();
+  renderGameCard();
+  renderQuiz();
+  startTyping();
+}
+
+function toggleMobileNav(){
+  const nav = document.getElementById('mobileNav');
+  nav.style.display = nav.style.display === 'none' ? 'flex' : 'none';
+}
+document.querySelectorAll('#mobileNav a').forEach(a=> a.addEventListener('click', ()=>{ document.getElementById('mobileNav').style.display='none'; }));
+
+/* ============ render: attacks ============ */
+function renderAttacks(){
+  const grid = document.getElementById('attackGrid');
+  grid.innerHTML = ATTACKS.map((a,i)=>{
+    const d = a[lang];
+    const labels = lang==='id' ? {what:"Apa itu?", how:"Cara Kerjanya", protect:"Cara Melindungi Diri"} : {what:"What is it?", how:"How it works", protect:"How to protect yourself"};
+    return `<details class="attack-card">
+      <summary><span class="attack-code">${a.code}</span><h4>${d.t}</h4><span class="chev">›</span></summary>
+      <div class="attack-body">
+        <h5>${labels.what}</h5><p style="margin:0 0 4px;">${d.w}</p>
+        <h5>${labels.how}</h5><p style="margin:0 0 4px;">${d.h}</p>
+        <h5>${labels.protect}</h5>
+        <ul>${d.p.map(x=>`<li>${x}</li>`).join('')}</ul>
+      </div>
+    </details>`;
+  }).join('');
+}
+
+/* ============ render: tools & certs ============ */
+function renderTools(){
+  document.getElementById('toolsList').innerHTML = TOOLS.map(tool=>`
+    <div class="tool-row">
+      <div class="tool-name">${tool.name}</div>
+      <p style="margin:0;">${tool[lang]}</p>
+    </div>`).join('');
+  document.getElementById('certsGrid').innerHTML = CERTS.map(c=>`
+    <div class="cert-card"><span class="cert-name">${c.name}</span><p style="margin:0;">${c[lang]}</p></div>`).join('');
+  document.getElementById('stepsList').innerHTML = STEPS.map((s,i)=>`
+    <div class="step"><div class="step-num">0${i+1}</div><p style="margin:0;">${s[lang]}</p></div>`).join('');
+}
+
+/* ============ Phishing game ============ */
+function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]); }
+function startGame(){
+  gameOrder = shuffle(PHISH_SAMPLES.map((_,i)=>i));
+  gameIndex = 0; gameScore = 0;
+  renderGameCard();
+}
+function renderGameCard(){
+  const total = PHISH_SAMPLES.length;
+  const progLabel = lang==='id' ? `Pesan ${Math.min(gameIndex+1,total)} / ${total}` : `Message ${Math.min(gameIndex+1,total)} / ${total}`;
+  const scoreLabel = lang==='id' ? `Skor: ${gameScore}/${total}` : `Score: ${gameScore}/${total}`;
+  document.getElementById('gameProgressLabel').textContent = progLabel;
+  document.getElementById('gameScoreLabel').textContent = scoreLabel;
+  document.getElementById('gameFeedback').className = 'feedback';
+  document.getElementById('gameFeedback').textContent = '';
+  const controls = document.querySelector('.game-controls');
+  if(gameIndex >= total){
+    const doneText = lang==='id'
+      ? `Selesai! Skor akhirmu: ${gameScore} dari ${total}.`
+      : `Done! Your final score: ${gameScore} out of ${total}.`;
+    document.getElementById('msgCard').innerHTML = `<p style="margin:0; font-family:var(--sans); color:var(--green-soft);">${doneText}</p>`;
+    controls.style.display = 'none';
+    const retry = lang==='id' ? 'Main Lagi' : 'Play Again';
+    document.getElementById('gameFeedback').className = 'feedback correct';
+    document.getElementById('gameFeedback').innerHTML = `<button class="btn btn-primary" onclick="startGame()">${retry}</button>`;
+    return;
+  }
+  controls.style.display = 'flex';
+  const sample = PHISH_SAMPLES[gameOrder[gameIndex]][lang];
+  const fromLabel = lang==='id' ? 'Dari' : 'From';
+  const subjLabel = lang==='id' ? 'Subjek' : 'Subject';
+  document.getElementById('msgCard').innerHTML = `
+    <div class="msg-meta"><b>${fromLabel}:</b> ${sample.from}${sample.subj!=='—' ? `<br><b>${subjLabel}:</b> ${sample.subj}`:''}</div>
+    <div class="msg-body">${sample.body}</div>`;
+}
+function answerGame(guessPhish){
+  const sampleIdx = gameOrder[gameIndex];
+  const sample = PHISH_SAMPLES[sampleIdx];
+  const correct = guessPhish === sample.phish;
+  if(correct) gameScore++;
+  const fb = document.getElementById('gameFeedback');
+  fb.className = 'feedback ' + (correct ? 'correct':'wrong');
+  const verdict = correct ? (lang==='id'?'Tepat!':'Correct!') : (lang==='id'?'Kurang tepat.':'Not quite.');
+  const nextLabel = lang==='id' ? 'Lanjut →' : 'Next →';
+  fb.innerHTML = `<b>${verdict}</b> ${sample[lang].why}<br><button class="btn btn-ghost" style="margin-top:10px;" onclick="advanceGame()">${nextLabel}</button>`;
+  document.querySelector('.game-controls').style.display = 'none';
+}
+function advanceGame(){ gameIndex++; renderGameCard(); }
+
+/* ============ Quiz ============ */
+function renderQuiz(){
+  quizIndex = 0; quizScore = 0; quizAnswered = false;
+  document.getElementById('quizActive').style.display = 'block';
+  document.getElementById('quizResult').classList.remove('show');
+  showQuizQuestion();
+}
+function showQuizQuestion(){
+  quizAnswered = false;
+  const item = QUIZ[quizIndex][lang];
+  document.getElementById('quizQ').textContent = item.q;
+  document.getElementById('quizExplain').className = 'quiz-explain';
+  document.getElementById('quizExplain').textContent = '';
+  document.getElementById('quizNextBtn').style.display = 'none';
+  document.getElementById('quizCounter').textContent = (lang==='id'?'Soal ':'Question ') + (quizIndex+1) + ' / ' + QUIZ.length;
+  document.getElementById('quizOpts').innerHTML = item.opts.map((op,i)=>
+    `<button class="quiz-opt" onclick="selectQuiz(${i})">${op}</button>`).join('');
+}
+function selectQuiz(i){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const item = QUIZ[quizIndex][lang];
+  const btns = document.querySelectorAll('#quizOpts .quiz-opt');
+  btns.forEach((b,idx)=>{
+    if(idx === item.correct) b.classList.add('correct');
+    else if(idx === i) b.classList.add('incorrect');
+  });
+  if(i === item.correct) quizScore++;
+  const ex = document.getElementById('quizExplain');
+  ex.className = 'quiz-explain show';
+  ex.textContent = item.ex;
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+}
+function nextQuiz(){
+  quizIndex++;
+  if(quizIndex >= QUIZ.length){
+    document.getElementById('quizActive').style.display = 'none';
+    document.getElementById('quizResult').classList.add('show');
+    document.getElementById('quizScoreBig').textContent = quizScore + ' / ' + QUIZ.length;
+    const msg = lang==='id'
+      ? (quizScore===QUIZ.length ? 'Sempurna! Kamu paham betul dasar keamanan siber.' : 'Lumayan! Coba baca lagi bagian jenis serangan di atas.')
+      : (quizScore===QUIZ.length ? 'Perfect! You clearly get the basics of cybersecurity.' : 'Not bad! Try reviewing the attack types section above.');
+    document.getElementById('quizScoreText').textContent = msg;
+    return;
+  }
+  showQuizQuestion();
+}
+function restartQuiz(){ renderQuiz(); }
+
+/* ============ Typing hero effect ============ */
+let typingTimer = null;
+function startTyping(){
+  if(typingTimer) clearInterval(typingTimer);
+  const el = document.getElementById('typedHeadline');
+  const full = lang==='id' ? 'Pahami cara hacker berpikir.\nBelajar bertahan, bukan menyerang.' : 'Understand how hackers think.\nLearn to defend, not to attack.';
+  let i = 0;
+  el.innerHTML = '';
+  typingTimer = setInterval(()=>{
+    i++;
+    const shown = full.slice(0,i).replace(/\n/g,'<br>');
+    el.innerHTML = shown + '<span class="cursor">&nbsp;</span>';
+    if(i >= full.length) clearInterval(typingTimer);
+  }, 28);
+}
+
+/* ============ Matrix rain background ============ */
+function initMatrixRain(){
+  const canvas = document.getElementById('matrixCanvas');
+  const ctx = canvas.getContext('2d');
+  const chars = 'アカサタナハマヤラワ01ハミヲン0123456789';
+  let cols, drops;
+  function resize(){
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    cols = Math.floor(canvas.width / 18);
+    drops = new Array(cols).fill(0).map(()=> Math.random()*-40);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function draw(){
+    ctx.fillStyle = 'rgba(5,10,7,0.16)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font = '15px monospace';
+    for(let i=0;i<cols;i++){
+      const ch = chars[Math.floor(Math.random()*chars.length)];
+      const x = i*18, y = drops[i]*18;
+      ctx.fillStyle = Math.random() < 0.06 ? '#bfffdb' : '#00ff6a';
+      ctx.fillText(ch, x, y);
+      if(y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  if(!reduced) setInterval(draw, 55); else draw();
+}
+
+/* ============ init ============ */
+applyStatic();
+renderAttacks();
+renderTools();
+startGame();
+renderQuiz();
+startTyping();
+initMatrixRain();
+</script>
+</body>
+</html>
